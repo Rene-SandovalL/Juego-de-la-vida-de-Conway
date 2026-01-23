@@ -38,13 +38,13 @@ while True:
     
     screen.fill(bg) # Rellenar la pantalla con el color de fondo, para borrar la pantalla anterior
     
-    # (Nuevo) Gestión de Eventos (Mouse y Teclado)
+    #Gestión de Eventos (Mouse y Teclado)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
         
-        # (Nuevo) Control por teclado
+        # Control por teclado
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE: # Espacio para Pausa
                 pauseExect = not pauseExect
