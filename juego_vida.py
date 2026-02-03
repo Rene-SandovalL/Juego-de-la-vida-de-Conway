@@ -7,7 +7,7 @@ import random
 pygame.init()
 
 # constantes para la pantalla
-WIDTH, HEIGHT = 800, 800 # Dimensiones en px de la ventana
+WIDTH, HEIGHT = 700, 700 # Dimensiones en px de la ventana
 N = 50 # Numero de celdas en cada dimension
 CELL_WIDTH = WIDTH / N # Ancho de cada celda
 CELL_HEIGHT = HEIGHT / N # Altura de cada celda
@@ -15,22 +15,18 @@ DEATH = 0
 ALIVE = 1 
 
 # Configuración de texto para contadores con comic sans obviamente
-font = pygame.font.SysFont("Comic sans", 20)
+font = pygame.font.SysFont("Comic sans", 15)
 pauseExect = True # El juego inicia en pausa para poder dibujar
 generation = 0
+total_births = 0
 
 gameState = np.zeros((N, N)) # Matriz de N x N con todas las celdas muertas
 
-#Inicializar celdas vivas para probar el juego
-#gameState[5, 3] = ALIVE
-#gameState[5, 4] = ALIVE
-#gameState[5, 5] = ALIVE
-
-screen = pygame.display.set_mode((WIDTH, 840)) # Altura extra para contadores
+screen = pygame.display.set_mode((WIDTH, HEIGHT + 40)) # Altura extra para contadores
 pygame.display.set_caption("Conway's Game of Life") # Titulo de la ventana
 
 bg = 25, 25, 25 # Color de fondo
-screen.fill(bg) # Rellenar la pantalla con el color de fondo, nigga
+screen.fill(bg) # Rellenar la pantalla con el color de fondo
 
 # Bucle pa que no se cierre la ventana
 while True:
@@ -51,10 +47,12 @@ while True:
             if event.key == pygame.K_c:     # C para Limpiar 
                 newGameState = np.zeros((N, N))
                 generation = 0
+                total_births = 0 
                 pauseExect = True
             if event.key == pygame.K_r:     # R para Aleatorio 
                 newGameState = np.random.randint(2, size=(N, N))
                 generation = 0
+                total_births = 0 
 
         # Insertar células con el Mouse
         mouseClick = pygame.mouse.get_pressed()
@@ -75,6 +73,7 @@ while True:
     alive_count = 0
     dead_count = 0
 
+    #Bucle que recorre todas las celdas
     for y in range (0, N):
         for x in range(0, N):
             
@@ -82,8 +81,11 @@ while True:
             if gameState[x, y] == ALIVE: alive_count += 1
             else: dead_count += 1
 
-            if not pauseExect:
+            if not pauseExect:# Solo si el juego no esta en pausa
                 #Calcular el numero de vecinos, la parte de % es para simular un mundo toroidal (pacman)
+                # Suma los valores de las 8 celadas vecinas (norte, sur, este, oeste y las 4 diagonales
+                # % N (operador módulo): Crea un mundo toroidal (los bordes se conectan, como en Pac-Man).
+                # Ejemplo: Si x=0, entonces (x-1)%50 = 49 (va al otro lado).
                 cell_neighbors = gameState[(x-1) % N, (y-1) % N] + \
                                  gameState[(x)   % N, (y-1) % N] + \
                                  gameState[(x+1) % N, (y-1) % N] + \
@@ -98,6 +100,7 @@ while True:
                 #regla 1: Una celda muerta con exactamente 3 vecinos vivos, "revive"
                 if gameState[x, y] == DEATH and cell_neighbors == 3:
                     newGameState[x, y] = ALIVE
+                    total_births += 1
 
                 #regla 2: Una celda viva con menos de 2 o más de 3 vecinos vivos, "muere"
                 elif gameState[x, y] == ALIVE and (cell_neighbors < 2 or cell_neighbors > 3):
@@ -120,12 +123,12 @@ while True:
         generation += 1
 
     # Cotadores y controles
-    INFO = font.render(f"Gen: {generation}  |  Vivas: {alive_count}  |  Muertas: {dead_count}", True, (255, 255, 255))
+    INFO = font.render(f"Gen: {total_births}  |  Vivas: {alive_count}  |  Muertas: {dead_count}", True, (255, 255, 255))
     screen.blit(INFO, (10, HEIGHT + 10))
     CONTROLS = font.render("[Espacio]: Pausa | [C]: Limpiar | [R]: Aleatorio", True, (255, 255, 255))
     screen.blit(CONTROLS, (380, HEIGHT + 10))
 
-    gameState = np.copy(newGameState)
+    gameState = np.copy(newGameState) # Actualizar el estado del juego
             
-    pygame.display.flip()
-    time.sleep(0.1) #Velocidad de generaciones / muertes
+    pygame.display.flip() # Actualizar la pantalla
+    time.sleep(0.1) #Velocidad de generaciones / muertes - Milisegundos
