@@ -66,8 +66,10 @@ while True:
                 # Clic izquierdo revive, derecho mata 
                 if mouseClick[0]:
                     newGameState[celdaX, celdaY] = ALIVE
+                    total_births += 1
                 elif mouseClick[2]:
                     newGameState[celdaX, celdaY] = DEATH
+                    total_births -= 1 if total_births > 0 else 0
 
     # Variables para contar células
     alive_count = 0
